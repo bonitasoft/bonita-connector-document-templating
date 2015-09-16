@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition:ConnectorDefinition xmlns:definition="http://www.bonitasoft.org/ns/connector/definition/6.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <id>document-templating</id>
+    <version>$definition.version$</version>
+    <icon>document.png</icon>
+
+    <category id="document" icon="document.png" />
+
+    <input name="documentInput" type="java.lang.String" mandatory="true" />
+    <input name="replacements" type="java.lang.Map" mandatory="true" />
+
+    <output name="outputResults" type="org.bonitasoft.engine.bpm.document.DocumentValue" />
+
+    <page id="documentConfig">
+        <widget id="documentInput" inputName="documentInput" xsi:type="definition:Text" showDocuments="true"/>
+        <widget id="replacements" inputName="replacements" xsi:type="definition:Text" />
+    </page>
+
+</definition:ConnectorDefinition>
+
