@@ -11,7 +11,7 @@
     <input name="documentInput" type="java.lang.String" mandatory="true" />
     <input name="replacements" type="java.lang.Map" mandatory="true" />
 
-    <output name="outputResults" type="org.bonitasoft.engine.bpm.document.DocumentValue" />
+    <output name="document" type="org.bonitasoft.engine.bpm.document.DocumentValue" />
 
     <page id="documentConfig">
         <widget id="documentInput" inputName="documentInput" xsi:type="definition:Text" showDocuments="true"/>
