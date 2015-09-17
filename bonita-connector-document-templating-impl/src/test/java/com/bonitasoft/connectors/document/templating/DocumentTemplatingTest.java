@@ -22,17 +22,13 @@ import static org.mockito.Mockito.doThrow;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import fr.opensagres.xdocreport.converter.ConverterTypeTo;
-import fr.opensagres.xdocreport.converter.ConverterTypeVia;
-import fr.opensagres.xdocreport.converter.Options;
-import fr.opensagres.xdocreport.core.XDocReportException;
-import fr.opensagres.xdocreport.document.IXDocReport;
-import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
-import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import org.apache.commons.io.IOUtils;
 import org.bonitasoft.engine.api.APIAccessor;
 import org.bonitasoft.engine.bpm.document.DocumentNotFoundException;
@@ -49,6 +45,14 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.bonitasoft.engine.api.ProcessAPI;
+
+import fr.opensagres.xdocreport.converter.ConverterTypeTo;
+import fr.opensagres.xdocreport.converter.ConverterTypeVia;
+import fr.opensagres.xdocreport.converter.Options;
+import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.document.IXDocReport;
+import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentTemplatingTest {
@@ -79,7 +83,7 @@ public class DocumentTemplatingTest {
         document.setContentStorageId("TheStorageID");
         byte[] content = new byte[] { 4, 5, 6 };
         final byte[] contentAfter = { 1, 2, 3 };
-        final Map<String, Object> replacements = Collections.singletonMap("theKey", (Object) "theValue");
+        final List<List<Object>> replacements = Collections.singletonList(Arrays.asList("theKey", (Object) "theValue"));
         doReturn(contentAfter).when(documentTemplating).applyReplacements(content, replacements);
         doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
         doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
@@ -121,14 +125,13 @@ public class DocumentTemplatingTest {
         document.setContentStorageId("TheStorageID");
         byte[] content = IOUtils.toByteArray(this.getClass().getResourceAsStream("/velocitytest.docx"));
 
-        final Map<String, Object> replacements = new HashMap<String, Object>();
+        final List<List<Object>> replacements = new ArrayList<List<Object>>();
 
-
-        replacements.put("champ", "FIELD");
-        replacements.put("espace", "SPPPPPAAAAAAACeeee");
-        replacements.put("MyField", "Mon champ :)\n toto");
+        replacements.add(Arrays.asList("champ", (Object) "FIELD"));
+        replacements.add(Arrays.asList("espace", (Object) "SPPPPPAAAAAAACeeee"));
+        replacements.add(Arrays.asList("MyField", (Object) "Mon champ :)\n toto"));
         Project project = new Project("The project name");
-        replacements.put("project", project);
+        replacements.add(Arrays.asList("project", project));
         doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
         doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
 
@@ -141,10 +144,10 @@ public class DocumentTemplatingTest {
         //when
         final Map<String, Object> execute = documentTemplating.execute();
 
-
         //then
         assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
-        final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(((DocumentValue) execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()), TemplateEngineKind.Velocity);
+        final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(
+                new ByteArrayInputStream(((DocumentValue) execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()), TemplateEngineKind.Velocity);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Options options = Options.getTo(ConverterTypeTo.XHTML).via(
                 ConverterTypeVia.XWPF);

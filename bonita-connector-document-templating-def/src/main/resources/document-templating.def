@@ -4,18 +4,21 @@
 
     <id>document-templating</id>
     <version>$definition.version$</version>
-    <icon>document.png</icon>
+    <icon>templating.png</icon>
 
-    <category id="document" icon="document.png" />
+    <category id="publishing" icon="publishing.png" />
 
     <input name="documentInput" type="java.lang.String" mandatory="true" />
-    <input name="replacements" type="java.lang.Map" mandatory="true" />
+    <input name="replacements" type="java.util.List" mandatory="true" />
 
     <output name="document" type="org.bonitasoft.engine.bpm.document.DocumentValue" />
 
     <page id="documentConfig">
         <widget id="documentInput" inputName="documentInput" xsi:type="definition:Text" showDocuments="true"/>
-        <widget id="replacements" inputName="replacements" xsi:type="definition:Text" />
+        <widget id="replacements" inputName="replacements" xsi:type="definition:Array" cols="2" fixedCols="true">
+            <colsCaption>Key</colsCaption>
+            <colsCaption>Value</colsCaption>
+        </widget>
     </page>
 
 </definition:ConnectorDefinition>

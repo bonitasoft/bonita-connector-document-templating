@@ -12,8 +12,13 @@ package com.bonitasoft.connectors.document.templating;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
+import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.document.IXDocReport;
+import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
+import fr.opensagres.xdocreport.template.IContext;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import org.bonitasoft.engine.api.ProcessAPI;
 import org.bonitasoft.engine.bpm.document.Document;
 import org.bonitasoft.engine.bpm.document.DocumentNotFoundException;
@@ -21,12 +26,6 @@ import org.bonitasoft.engine.bpm.document.DocumentValue;
 import org.bonitasoft.engine.connector.AbstractConnector;
 import org.bonitasoft.engine.connector.ConnectorException;
 import org.bonitasoft.engine.connector.ConnectorValidationException;
-
-import fr.opensagres.xdocreport.core.XDocReportException;
-import fr.opensagres.xdocreport.document.IXDocReport;
-import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
-import fr.opensagres.xdocreport.template.IContext;
-import fr.opensagres.xdocreport.template.TemplateEngineKind;
 
 /**
  * @author Baptiste Mesta
@@ -46,7 +45,7 @@ public class DocumentTemplating extends AbstractConnector {
             Document document = processAPI.getLastDocument(processInstanceId, (String) getInputParameter(INPUT_DOCUMENT_INPUT));
             byte[] content = processAPI.getDocumentContent(document.getContentStorageId());
 
-            byte[] finalDocument = applyReplacements(content, (Map<String, Object>) getInputParameter(INPUT_REPLACEMENTS));
+            byte[] finalDocument = applyReplacements(content, (List<List<Object>>)getInputParameter(INPUT_REPLACEMENTS));
 
             setOutputParameter(OUTPUT_DOCUMENT, createDocumentValue(document, finalDocument));
         } catch (DocumentNotFoundException e) {
@@ -54,12 +53,14 @@ public class DocumentTemplating extends AbstractConnector {
         }
     }
 
-    byte[] applyReplacements(byte[] content, Map<String, Object> inputParameter) throws ConnectorException {
+    byte[] applyReplacements(byte[] content, List<List<Object>> inputParameter) throws ConnectorException {
         try {
             IXDocReport report = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(content), TemplateEngineKind.Velocity);
 
             IContext context = report.createContext();
-            context.putMap(inputParameter);
+            for (List<Object> objects : inputParameter) {
+                context.put(String.valueOf(objects.get(0)),objects.get(1));
+            }
 
             final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             report.process(context, byteArrayOutputStream);
