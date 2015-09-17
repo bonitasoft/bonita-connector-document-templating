@@ -19,10 +19,21 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import fr.opensagres.xdocreport.converter.ConverterTypeTo;
+import fr.opensagres.xdocreport.converter.ConverterTypeVia;
+import fr.opensagres.xdocreport.converter.Options;
+import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.document.IXDocReport;
+import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
+import org.apache.commons.io.IOUtils;
 import org.bonitasoft.engine.api.APIAccessor;
 import org.bonitasoft.engine.bpm.document.DocumentNotFoundException;
 import org.bonitasoft.engine.bpm.document.DocumentValue;
@@ -68,7 +79,7 @@ public class DocumentTemplatingTest {
         document.setContentStorageId("TheStorageID");
         byte[] content = new byte[] { 4, 5, 6 };
         final byte[] contentAfter = { 1, 2, 3 };
-        final Map<String, String> replacements = Collections.singletonMap("theKey", "theValue");
+        final Map<String, Object> replacements = Collections.singletonMap("theKey", (Object) "theValue");
         doReturn(contentAfter).when(documentTemplating).applyReplacements(content, replacements);
         doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
         doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
@@ -99,6 +110,64 @@ public class DocumentTemplatingTest {
 
         //when
         documentTemplating.execute();
+    }
+
+    @Test
+    public void process_docx_document() throws ConnectorException, DocumentNotFoundException, IOException, XDocReportException {
+        //given
+        DocumentImpl document = new DocumentImpl();
+        document.setContentMimeType("theMimeType");
+        document.setFileName("doc.docx");
+        document.setContentStorageId("TheStorageID");
+        byte[] content = IOUtils.toByteArray(this.getClass().getResourceAsStream("/velocitytest.docx"));
+
+        final Map<String, Object> replacements = new HashMap<String, Object>();
+
+
+        replacements.put("champ", "FIELD");
+        replacements.put("espace", "SPPPPPAAAAAAACeeee");
+        replacements.put("MyField", "Mon champ :)\n toto");
+        Project project = new Project("The project name");
+        replacements.put("project", project);
+        doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
+        doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
+
+        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
+        parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
+
+        documentTemplating.setInputParameters(parameters);
+
+        //when
+        final Map<String, Object> execute = documentTemplating.execute();
+
+
+        //then
+        assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
+        final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(((DocumentValue) execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()), TemplateEngineKind.Velocity);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Options options = Options.getTo(ConverterTypeTo.XHTML).via(
+                ConverterTypeVia.XWPF);
+        report.convert(report.createContext(), options, out);
+        final String actual = new String(out.toByteArray());
+        assertThat(actual.contains("mon FIELD avec SPPPPPAAAAAAACeeee")).isTrue();
+        assertThat(actual.contains("The project name")).isTrue();
+        assertThat(actual.contains("Mon champ :)")).isTrue();
+        assertThat(actual.contains("toto")).isTrue();
+
+    }
+
+    public class Project {
+
+        private String name;
+
+        public Project(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
 }
