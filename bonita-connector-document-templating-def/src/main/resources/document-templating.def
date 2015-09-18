@@ -6,7 +6,8 @@
     <version>$definition.version$</version>
     <icon>templating.png</icon>
 
-    <category id="publishing" icon="publishing.png" />
+    <category id="reporting" icon="Reporting.png" />
+    <category id="office" icon="office.png" parentCategoryId="reporting" />
 
     <input name="documentInput" type="java.lang.String" mandatory="true" />
     <input name="replacements" type="java.util.List" mandatory="true" />

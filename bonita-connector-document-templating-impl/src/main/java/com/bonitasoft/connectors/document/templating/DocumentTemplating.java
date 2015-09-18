@@ -14,11 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import fr.opensagres.xdocreport.core.XDocReportException;
-import fr.opensagres.xdocreport.document.IXDocReport;
-import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
-import fr.opensagres.xdocreport.template.IContext;
-import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import org.bonitasoft.engine.api.ProcessAPI;
 import org.bonitasoft.engine.bpm.document.Document;
 import org.bonitasoft.engine.bpm.document.DocumentNotFoundException;
@@ -26,6 +21,12 @@ import org.bonitasoft.engine.bpm.document.DocumentValue;
 import org.bonitasoft.engine.connector.AbstractConnector;
 import org.bonitasoft.engine.connector.ConnectorException;
 import org.bonitasoft.engine.connector.ConnectorValidationException;
+
+import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.document.IXDocReport;
+import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
+import fr.opensagres.xdocreport.template.IContext;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
 
 /**
  * @author Baptiste Mesta
@@ -40,34 +41,34 @@ public class DocumentTemplating extends AbstractConnector {
     @Override
     protected void executeBusinessLogic() throws ConnectorException {
         try {
-            ProcessAPI processAPI = getAPIAccessor().getProcessAPI();
-            long processInstanceId = getExecutionContext().getProcessInstanceId();
-            Document document = processAPI.getLastDocument(processInstanceId, (String) getInputParameter(INPUT_DOCUMENT_INPUT));
-            byte[] content = processAPI.getDocumentContent(document.getContentStorageId());
+            final ProcessAPI processAPI = getAPIAccessor().getProcessAPI();
+            final long processInstanceId = getExecutionContext().getProcessInstanceId();
+            final Document document = processAPI.getLastDocument(processInstanceId, (String) getInputParameter(INPUT_DOCUMENT_INPUT));
+            final byte[] content = processAPI.getDocumentContent(document.getContentStorageId());
 
-            byte[] finalDocument = applyReplacements(content, (List<List<Object>>)getInputParameter(INPUT_REPLACEMENTS));
+            final byte[] finalDocument = applyReplacements(content, (List<List<Object>>)getInputParameter(INPUT_REPLACEMENTS));
 
             setOutputParameter(OUTPUT_DOCUMENT, createDocumentValue(document, finalDocument));
-        } catch (DocumentNotFoundException e) {
+        } catch (final DocumentNotFoundException e) {
             throw new ConnectorException(e);
         }
     }
 
     byte[] applyReplacements(byte[] content, List<List<Object>> inputParameter) throws ConnectorException {
         try {
-            IXDocReport report = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(content), TemplateEngineKind.Velocity);
+            final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(content), TemplateEngineKind.Velocity);
 
-            IContext context = report.createContext();
-            for (List<Object> objects : inputParameter) {
+            final IContext context = report.createContext();
+            for (final List<Object> objects : inputParameter) {
                 context.put(String.valueOf(objects.get(0)),objects.get(1));
             }
 
             final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             report.process(context, byteArrayOutputStream);
             return byteArrayOutputStream.toByteArray();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new ConnectorException(e);
-        } catch (XDocReportException e) {
+        } catch (final XDocReportException e) {
             throw new ConnectorException(e);
         }
     }
