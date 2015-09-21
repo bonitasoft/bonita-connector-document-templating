@@ -11,6 +11,7 @@
 
     <input name="documentInput" type="java.lang.String" mandatory="true" />
     <input name="replacements" type="java.util.List" mandatory="true" />
+    <input name="outputFileName" type="java.lang.String" defaultValue="myDocument.docx" />
 
     <output name="document" type="org.bonitasoft.engine.bpm.document.DocumentValue" />
 
