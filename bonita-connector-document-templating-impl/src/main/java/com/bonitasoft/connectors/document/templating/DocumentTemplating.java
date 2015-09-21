@@ -35,6 +35,7 @@ public class DocumentTemplating extends AbstractConnector {
 
     public static String INPUT_DOCUMENT_INPUT = "documentInput";
     public static String INPUT_REPLACEMENTS = "replacements";
+    public static String INPUT_OUTPUT_FILNAME = "outputFileName";
 
     public static String OUTPUT_DOCUMENT = "document";
 
@@ -44,11 +45,12 @@ public class DocumentTemplating extends AbstractConnector {
             final ProcessAPI processAPI = getAPIAccessor().getProcessAPI();
             final long processInstanceId = getExecutionContext().getProcessInstanceId();
             final Document document = processAPI.getLastDocument(processInstanceId, (String) getInputParameter(INPUT_DOCUMENT_INPUT));
+            final String outputFilename = (String) getInputParameter(INPUT_OUTPUT_FILNAME);
             final byte[] content = processAPI.getDocumentContent(document.getContentStorageId());
 
-            final byte[] finalDocument = applyReplacements(content, (List<List<Object>>)getInputParameter(INPUT_REPLACEMENTS));
+            final byte[] finalDocument = applyReplacements(content, (List<List<Object>>) getInputParameter(INPUT_REPLACEMENTS));
 
-            setOutputParameter(OUTPUT_DOCUMENT, createDocumentValue(document, finalDocument));
+            setOutputParameter(OUTPUT_DOCUMENT, createDocumentValue(document, outputFilename, finalDocument));
         } catch (final DocumentNotFoundException e) {
             throw new ConnectorException(e);
         }
@@ -60,7 +62,7 @@ public class DocumentTemplating extends AbstractConnector {
 
             final IContext context = report.createContext();
             for (final List<Object> objects : inputParameter) {
-                context.put(String.valueOf(objects.get(0)),objects.get(1));
+                context.put(String.valueOf(objects.get(0)), objects.get(1));
             }
 
             final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -73,8 +75,8 @@ public class DocumentTemplating extends AbstractConnector {
         }
     }
 
-    private DocumentValue createDocumentValue(Document document, byte[] content) {
-        return new DocumentValue(content, document.getContentMimeType(), document.getContentFileName());
+    private DocumentValue createDocumentValue(Document document, String outputFilename, byte[] content) {
+        return new DocumentValue(content, document.getContentMimeType(), outputFilename != null ? outputFilename : document.getContentFileName());
     }
 
     @Override

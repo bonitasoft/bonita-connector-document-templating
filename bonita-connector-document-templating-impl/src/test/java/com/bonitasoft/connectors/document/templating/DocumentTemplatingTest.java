@@ -101,6 +101,34 @@ public class DocumentTemplatingTest {
         assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
         assertThat(execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).isEqualToComparingFieldByField(new DocumentValue(contentAfter, "theMimeType", "doc.docx"));
     }
+    @Test
+    public void should_execute_return_result_of_convert_method_with_outputFileName() throws ConnectorException, DocumentNotFoundException {
+        //given
+        DocumentImpl document = new DocumentImpl();
+        document.setContentMimeType("theMimeType");
+        document.setFileName("doc.docx");
+        document.setContentStorageId("TheStorageID");
+        byte[] content = new byte[] { 4, 5, 6 };
+        final byte[] contentAfter = { 1, 2, 3 };
+        final List<List<Object>> replacements = Collections.singletonList(Arrays.asList("theKey", (Object) "theValue"));
+        doReturn(contentAfter).when(documentTemplating).applyReplacements(content, replacements);
+        doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
+        doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
+
+        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
+        parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
+        parameters.put(DocumentTemplating.INPUT_OUTPUT_FILNAME, "outDocument.docx");
+
+        documentTemplating.setInputParameters(parameters);
+
+        //when
+        final Map<String, Object> execute = documentTemplating.execute();
+
+        //then
+        assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
+        assertThat(execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).isEqualToComparingFieldByField(new DocumentValue(contentAfter, "theMimeType", "outDocument.docx"));
+    }
 
     @Test(expected = ConnectorException.class)
     public void should_execute_throw_exception_when_document_not_found() throws ConnectorException, DocumentNotFoundException {
