@@ -6,7 +6,7 @@ How to design report
 ====================
 ##### Using Word (docx): 
 * Insertion > QuickPart > Field...
-* Select FusionField and use a template as **field name** (eg: ${name}, ${user.Name}...etc)
+* Select FusionField and use a template (see [Velocity templating language](http://velocity.apache.org/)) as **field name** (eg: ${name}, ${user.Name}...etc)
 * Click OK
 
 ##### Using LibreOffice (odt): 
