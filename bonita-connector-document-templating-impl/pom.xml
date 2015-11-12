@@ -81,6 +81,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.16</version>
             </plugin>
         </plugins>
     </build>
@@ -91,7 +92,7 @@
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>1.0.b2</version>
-                 <scope>provided</scope>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
