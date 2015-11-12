@@ -35,7 +35,7 @@ public class DocumentTemplating extends AbstractConnector {
 
     public static String INPUT_DOCUMENT_INPUT = "documentInput";
     public static String INPUT_REPLACEMENTS = "replacements";
-    public static String INPUT_OUTPUT_FILNAME = "outputFileName";
+    public static String INPUT_RESULTING_DOC_FILENAME = "outputFileName";
 
     public static String OUTPUT_DOCUMENT = "document";
 
@@ -45,7 +45,7 @@ public class DocumentTemplating extends AbstractConnector {
             final ProcessAPI processAPI = getAPIAccessor().getProcessAPI();
             final long processInstanceId = getExecutionContext().getProcessInstanceId();
             final Document document = processAPI.getLastDocument(processInstanceId, (String) getInputParameter(INPUT_DOCUMENT_INPUT));
-            final String outputFilename = (String) getInputParameter(INPUT_OUTPUT_FILNAME);
+            final String outputFilename = (String) getInputParameter(INPUT_RESULTING_DOC_FILENAME);
             final byte[] content = processAPI.getDocumentContent(document.getContentStorageId());
 
             final byte[] finalDocument = applyReplacements(content, (List<List<Object>>) getInputParameter(INPUT_REPLACEMENTS));
@@ -68,9 +68,7 @@ public class DocumentTemplating extends AbstractConnector {
             final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             report.process(context, byteArrayOutputStream);
             return byteArrayOutputStream.toByteArray();
-        } catch (final IOException e) {
-            throw new ConnectorException(e);
-        } catch (final XDocReportException e) {
+        } catch (final IOException | XDocReportException e) {
             throw new ConnectorException(e);
         }
     }

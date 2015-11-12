@@ -118,7 +118,7 @@ public class DocumentTemplatingTest {
         final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
         parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
-        parameters.put(DocumentTemplating.INPUT_OUTPUT_FILNAME, "outDocument.docx");
+        parameters.put(DocumentTemplating.INPUT_RESULTING_DOC_FILENAME, "outDocument.docx");
 
         documentTemplating.setInputParameters(parameters);
 
