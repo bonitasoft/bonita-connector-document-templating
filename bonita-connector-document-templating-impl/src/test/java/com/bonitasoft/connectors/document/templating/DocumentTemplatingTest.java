@@ -6,7 +6,6 @@
  * Bonitasoft, 32 rue Gustave Eiffel – 38000 Grenoble
  * or Bonitasoft US, 51 Federal Street, Suite 305, San Francisco, CA 94107
  **/
-
 package com.bonitasoft.connectors.document.templating;
 
 /**
@@ -57,7 +56,7 @@ import fr.opensagres.xdocreport.template.TemplateEngineKind;
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentTemplatingTest {
 
-    private final long processInstanceId = 4861356546l;
+    private final long processInstanceId = 4861356546L;
     @Mock
     private APIAccessor apiAccessor;
     @Mock
@@ -88,7 +87,7 @@ public class DocumentTemplatingTest {
         doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
         doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
 
-        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
         parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
 
@@ -101,6 +100,7 @@ public class DocumentTemplatingTest {
         assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
         assertThat(execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).isEqualToComparingFieldByField(new DocumentValue(contentAfter, "theMimeType", "doc.docx"));
     }
+
     @Test
     public void should_execute_return_result_of_convert_method_with_outputFileName() throws ConnectorException, DocumentNotFoundException {
         //given
@@ -115,10 +115,10 @@ public class DocumentTemplatingTest {
         doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
         doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
 
-        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
         parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
-        parameters.put(DocumentTemplating.INPUT_OUTPUT_FILNAME, "outDocument.docx");
+        parameters.put(DocumentTemplating.INPUT_RESULTING_DOC_FILENAME, "outDocument.docx");
 
         documentTemplating.setInputParameters(parameters);
 
@@ -127,7 +127,8 @@ public class DocumentTemplatingTest {
 
         //then
         assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
-        assertThat(execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).isEqualToComparingFieldByField(new DocumentValue(contentAfter, "theMimeType", "outDocument.docx"));
+        assertThat(execute.get(DocumentTemplating.OUTPUT_DOCUMENT))
+                .isEqualToComparingFieldByField(new DocumentValue(contentAfter, "theMimeType", "outDocument.docx"));
     }
 
     @Test(expected = ConnectorException.class)
@@ -135,7 +136,7 @@ public class DocumentTemplatingTest {
         //given
         final Map<String, String> replacements = Collections.singletonMap("theKey", "theValue");
         doThrow(new DocumentNotFoundException("")).when(processAPI).getLastDocument(anyLong(), anyString());
-        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
         parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
         documentTemplating.setInputParameters(parameters);
@@ -153,7 +154,7 @@ public class DocumentTemplatingTest {
         document.setContentStorageId("TheStorageID");
         byte[] content = IOUtils.toByteArray(this.getClass().getResourceAsStream("/velocitytest.docx"));
 
-        final List<List<Object>> replacements = new ArrayList<List<Object>>();
+        final List<List<Object>> replacements = new ArrayList<>();
 
         replacements.add(Arrays.asList("champ", (Object) "FIELD"));
         replacements.add(Arrays.asList("espace", (Object) "SPPPPPAAAAAAACeeee"));
@@ -163,7 +164,7 @@ public class DocumentTemplatingTest {
         doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
         doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
 
-        final HashMap<String, Object> parameters = new HashMap<String, Object>();
+        final HashMap<String, Object> parameters = new HashMap<>();
         parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
         parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
 

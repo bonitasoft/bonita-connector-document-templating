@@ -11,6 +11,6 @@ How to design report
 
 ##### Using LibreOffice (odt): 
 * Insert > Fields > More fields...
-* Select UserField and use a template (see [Velocity templating language](http://velocity.apache.org/)) as **value** (eg: ${name}, ${user.Name}...etc)
+* Go to Variables tab, select UserField and use a template (see [Velocity templating language](http://velocity.apache.org/)) as **value** (eg: ${name}, ${user.Name}...etc)
 * Choose Text format
 * Click Insert

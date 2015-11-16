@@ -21,6 +21,7 @@
             <colsCaption>Key</colsCaption>
             <colsCaption>Value</colsCaption>
         </widget>
+        <widget id="outputFileName" inputName="outputFileName" xsi:type="definition:Text" />
     </page>
 
 </definition:ConnectorDefinition>
