@@ -62,7 +62,9 @@ public class DocumentTemplating extends AbstractConnector {
 
             final IContext context = report.createContext();
             for (final List<Object> objects : inputParameter) {
-                context.put(String.valueOf(objects.get(0)), objects.get(1));
+                if (objects != null && objects.size() > 1) {
+                    context.put(String.valueOf(objects.get(0)), objects.get(1));
+                }
             }
 
             final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
