@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.bonitasoft.connectors</groupId>
         <artifactId>bonita-connector-document-templating</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>bonita-connector-document-templating-def</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
 
 
 </project>
