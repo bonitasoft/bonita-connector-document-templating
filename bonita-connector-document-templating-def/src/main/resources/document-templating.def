@@ -6,7 +6,7 @@
     <version>$definition.version$</version>
     <icon>templating.png</icon>
 
-	<category id="document" icon="Document.gif"/>
+	<category id="office" icon="office.png"/>
 
     <input name="documentInput" type="java.lang.String" mandatory="true" />
     <input name="replacements" type="java.util.List" mandatory="true" />
