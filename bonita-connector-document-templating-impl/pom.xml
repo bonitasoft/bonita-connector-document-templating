@@ -5,14 +5,14 @@
     <parent>
         <groupId>com.bonitasoft.connectors</groupId>
         <artifactId>bonita-connector-document-templating</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>bonita-connector-document-templating-impl</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
-        <definition.version>1.0.0</definition.version>
+        <definition.version>1.0.1-SNAPSHOT</definition.version>
         <opensagres.version>1.0.5</opensagres.version>
     </properties>
 
