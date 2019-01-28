@@ -43,6 +43,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.bonitasoft.engine</groupId>
+            <artifactId>bonita-common-sp</artifactId>
+            <version>${bonita.engine.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.template.velocity</artifactId>
             <version>${opensagres.version}</version>
