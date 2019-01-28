@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <id>document-templating</id>
-    <version>$definition.version$</version>
+    <version>1.0.1</version>
     <icon>templating.png</icon>
 
 	<category id="office" icon="office.png"/>
