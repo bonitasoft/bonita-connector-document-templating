@@ -161,8 +161,8 @@
     </build>
     
     <scm>
-        <developerConnection>scm:git:git@github.com:bonitasoft/bonita-connector-document-templating.git</developerConnection>
-        <connection>scm:git:git@github.com:bonitasoft/bonita-connector-document-templating.git</connection>
+        <developerConnection>scm:git:https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@github.com/bonitasoft/bonita-connector-document-templating.git</developerConnection>
+        <connection>scm:git:https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@github.com/bonitasoft/bonita-connector-document-templating.git</connection>
         <url>https://github.com/bonitasoft/bonita-connector-document-templating.git</url>
         <tag>HEAD</tag>
     </scm>
