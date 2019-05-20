@@ -20,7 +20,10 @@ import static org.mockito.Mockito.doThrow;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -186,7 +189,9 @@ public class DocumentTemplatingTest {
         assertThat(actual.contains("The project name")).isTrue();
         assertThat(actual.contains("Mon champ :)")).isTrue();
         assertThat(actual.contains("toto")).isTrue();
-
+        assertThat(actual.contains("my task")).isTrue();
+        assertThat(actual.contains("[my task, another task, last task]")).isTrue();
+        assertThat(actual.contains("[another task, last task, my task]")).isTrue();
     }
 
     public class Project {
@@ -199,6 +204,10 @@ public class DocumentTemplatingTest {
 
         public String getName() {
             return name;
+        }
+        
+        public List<String> getTasks() {
+            return Arrays.asList("my task","another task","last task");
         }
     }
 
