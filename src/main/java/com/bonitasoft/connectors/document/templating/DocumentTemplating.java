@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.velocity.tools.generic.SortTool;
 import org.bonitasoft.engine.api.ProcessAPI;
 import org.bonitasoft.engine.bpm.document.Document;
 import org.bonitasoft.engine.bpm.document.DocumentNotFoundException;
@@ -61,6 +62,7 @@ public class DocumentTemplating extends AbstractConnector {
             final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(new ByteArrayInputStream(content), TemplateEngineKind.Velocity);
 
             final IContext context = report.createContext();
+            context.put("sorter", new SortTool());
             for (final List<Object> objects : inputParameter) {
                 if (objects != null && objects.size() > 1) {
                     context.put(String.valueOf(objects.get(0)), objects.get(1));
