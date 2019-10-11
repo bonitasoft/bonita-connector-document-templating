@@ -229,8 +229,8 @@ public class DocumentTemplatingTest {
             Options options = Options.getTo(ConverterTypeTo.XHTML).via(ConverterTypeVia.XWPF);
             report.convert(report.createContext(), options, out);
             String actual = new String(out.toByteArray());
-            assertThat(actual.contains("invalidchar")).isFalse(); // There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
-            assertThat(actual.contains("invalidchar"));
+            assertThat(actual).doesNotContain("invalidchar");// There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
+            assertThat(actual).contains("invalidchar");
         }
     }
 
@@ -266,8 +266,8 @@ public class DocumentTemplatingTest {
             Options options = Options.getTo(ConverterTypeTo.XHTML);
             report.convert(report.createContext(), options, out);
             String actual = new String(out.toByteArray());
-            assertThat(actual.contains("invalidchar")).isFalse(); // There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
-            assertThat(actual.contains("invalidchar"));
+            assertThat(actual).doesNotContain("invalidchar");// There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
+            assertThat(actual).contains("invalidchar");
         }
     }
 
