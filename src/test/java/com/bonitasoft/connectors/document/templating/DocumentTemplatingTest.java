@@ -20,10 +20,7 @@ import static org.mockito.Mockito.doThrow;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,7 +83,7 @@ public class DocumentTemplatingTest {
         byte[] content = new byte[] { 4, 5, 6 };
         final byte[] contentAfter = { 1, 2, 3 };
         final List<List<Object>> replacements = Collections.singletonList(Arrays.asList("theKey", (Object) "theValue"));
-        doReturn(contentAfter).when(documentTemplating).applyReplacements(content, replacements);
+        doReturn(contentAfter).when(documentTemplating).applyReplacements(content, replacements, false);
         doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
         doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
 
@@ -101,11 +98,13 @@ public class DocumentTemplatingTest {
 
         //then
         assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
-        assertThat(execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).isEqualToComparingFieldByField(new DocumentValue(contentAfter, "theMimeType", "doc.docx"));
+        assertThat(execute.get(DocumentTemplating.OUTPUT_DOCUMENT))
+                .isEqualToComparingFieldByField(new DocumentValue(contentAfter, "theMimeType", "doc.docx"));
     }
 
     @Test
-    public void should_execute_return_result_of_convert_method_with_outputFileName() throws ConnectorException, DocumentNotFoundException {
+    public void should_execute_return_result_of_convert_method_with_outputFileName()
+            throws ConnectorException, DocumentNotFoundException {
         //given
         DocumentImpl document = new DocumentImpl();
         document.setContentMimeType("theMimeType");
@@ -114,7 +113,7 @@ public class DocumentTemplatingTest {
         byte[] content = new byte[] { 4, 5, 6 };
         final byte[] contentAfter = { 1, 2, 3 };
         final List<List<Object>> replacements = Collections.singletonList(Arrays.asList("theKey", (Object) "theValue"));
-        doReturn(contentAfter).when(documentTemplating).applyReplacements(content, replacements);
+        doReturn(contentAfter).when(documentTemplating).applyReplacements(content, replacements, false);
         doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
         doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
 
@@ -135,7 +134,8 @@ public class DocumentTemplatingTest {
     }
 
     @Test(expected = ConnectorException.class)
-    public void should_execute_throw_exception_when_document_not_found() throws ConnectorException, DocumentNotFoundException {
+    public void should_execute_throw_exception_when_document_not_found()
+            throws ConnectorException, DocumentNotFoundException {
         //given
         final Map<String, String> replacements = Collections.singletonMap("theKey", "theValue");
         doThrow(new DocumentNotFoundException("")).when(processAPI).getLastDocument(anyLong(), anyString());
@@ -149,7 +149,8 @@ public class DocumentTemplatingTest {
     }
 
     @Test
-    public void process_docx_document() throws ConnectorException, DocumentNotFoundException, IOException, XDocReportException {
+    public void process_docx_document()
+            throws ConnectorException, DocumentNotFoundException, IOException, XDocReportException {
         //given
         DocumentImpl document = new DocumentImpl();
         document.setContentMimeType("theMimeType");
@@ -179,19 +180,95 @@ public class DocumentTemplatingTest {
         //then
         assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
         final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(
-                new ByteArrayInputStream(((DocumentValue) execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()), TemplateEngineKind.Velocity);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Options options = Options.getTo(ConverterTypeTo.XHTML).via(
-                ConverterTypeVia.XWPF);
-        report.convert(report.createContext(), options, out);
-        final String actual = new String(out.toByteArray());
-        assertThat(actual.contains("mon FIELD avec SPPPPPAAAAAAACeeee")).isTrue();
-        assertThat(actual.contains("The project name")).isTrue();
-        assertThat(actual.contains("Mon champ :)")).isTrue();
-        assertThat(actual.contains("toto")).isTrue();
-        assertThat(actual.contains("my task")).isTrue();
-        assertThat(actual.contains("[my task, another task, last task]")).isTrue();
-        assertThat(actual.contains("[another task, last task, my task]")).isTrue();
+                new ByteArrayInputStream(((DocumentValue) execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()),
+                TemplateEngineKind.Velocity);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Options options = Options.getTo(ConverterTypeTo.XHTML).via(
+                    ConverterTypeVia.XWPF);
+            report.convert(report.createContext(), options, out);
+            final String actual = new String(out.toByteArray());
+            assertThat(actual.contains("mon FIELD avec SPPPPPAAAAAAACeeee")).isTrue();
+            assertThat(actual.contains("The project name")).isTrue();
+            assertThat(actual.contains("Mon champ :)")).isTrue();
+            assertThat(actual.contains("toto")).isTrue();
+            assertThat(actual.contains("my task")).isTrue();
+            assertThat(actual.contains("[my task, another task, last task]")).isTrue();
+            assertThat(actual.contains("[another task, last task, my task]")).isTrue();
+        }
+    }
+
+    @Test
+    public void should_sanitize_input_with_invalid_char_for_docx() throws Exception {
+        //given
+        DocumentImpl document = new DocumentImpl();
+        document.setContentMimeType("theMimeType");
+        document.setFileName("template.docx");
+        document.setContentStorageId("TheStorageID");
+        byte[] content = IOUtils.toByteArray(this.getClass().getResourceAsStream("/template.docx"));
+
+        List<List<Object>> replacements = new ArrayList<>();
+        replacements.add(Arrays.asList("field", (Object) "invalidchar")); // There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
+        doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
+        doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
+        parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
+
+        documentTemplating.setInputParameters(parameters);
+
+        //when
+        Map<String, Object> res = documentTemplating.execute();
+
+        //then
+        assertThat(res).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
+        IXDocReport report = XDocReportRegistry.getRegistry().loadReport(
+                new ByteArrayInputStream(((DocumentValue) res.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()),
+                TemplateEngineKind.Velocity);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Options options = Options.getTo(ConverterTypeTo.XHTML).via(ConverterTypeVia.XWPF);
+            report.convert(report.createContext(), options, out);
+            String actual = new String(out.toByteArray());
+            assertThat(actual.contains("invalidchar")).isFalse(); // There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
+            assertThat(actual.contains("invalidchar"));
+        }
+    }
+
+    @Test
+    public void should_sanitize_input_with_invalid_char_for_odt() throws Exception {
+        //given
+        DocumentImpl document = new DocumentImpl();
+        document.setContentMimeType("theMimeType");
+        document.setFileName("template.odt");
+        document.setContentStorageId("TheStorageID");
+        byte[] content = IOUtils.toByteArray(this.getClass().getResourceAsStream("/template.odt"));
+
+        List<List<Object>> replacements = new ArrayList<>();
+        replacements.add(Arrays.asList("field", (Object) "invalidchar")); // There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
+        doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
+        doReturn(content).when(processAPI).getDocumentContent("TheStorageID");
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
+        parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
+
+        documentTemplating.setInputParameters(parameters);
+
+        //when
+        Map<String, Object> res = documentTemplating.execute();
+
+        //then
+        assertThat(res).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
+        IXDocReport report = XDocReportRegistry.getRegistry().loadReport(
+                new ByteArrayInputStream(((DocumentValue) res.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()),
+                TemplateEngineKind.Velocity);
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Options options = Options.getTo(ConverterTypeTo.XHTML);
+            report.convert(report.createContext(), options, out);
+            String actual = new String(out.toByteArray());
+            assertThat(actual.contains("invalidchar")).isFalse(); // There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
+            assertThat(actual.contains("invalidchar"));
+        }
     }
 
     public class Project {
@@ -205,9 +282,9 @@ public class DocumentTemplatingTest {
         public String getName() {
             return name;
         }
-        
+
         public List<String> getTasks() {
-            return Arrays.asList("my task","another task","last task");
+            return Arrays.asList("my task", "another task", "last task");
         }
     }
 
