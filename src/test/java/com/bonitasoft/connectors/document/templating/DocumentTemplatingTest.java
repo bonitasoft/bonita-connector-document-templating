@@ -20,7 +20,9 @@ import static org.mockito.Mockito.doThrow;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +36,7 @@ import org.bonitasoft.engine.bpm.document.DocumentNotFoundException;
 import org.bonitasoft.engine.bpm.document.DocumentValue;
 import org.bonitasoft.engine.bpm.document.impl.DocumentImpl;
 import org.bonitasoft.engine.connector.ConnectorException;
+import org.bonitasoft.engine.connector.ConnectorValidationException;
 import org.bonitasoft.engine.connector.EngineExecutionContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -269,6 +272,56 @@ public class DocumentTemplatingTest {
             assertThat(actual).doesNotContain("invalidchar");// There is an invalid char between 'd' and 'c' -> 0x19 invalidchar
             assertThat(actual).contains("invalidchar");
         }
+    }
+
+    @Test(expected = ConnectorValidationException.class)
+    public void should_not_validate_unsuported_documents() throws Exception {
+        DocumentImpl document = new DocumentImpl();
+        document.setContentMimeType("theMimeType");
+        document.setFileName("template.txt");
+        document.setContentStorageId("TheStorageID");
+
+        List<List<Object>> replacements = new ArrayList<>();
+        doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
+        parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
+
+        documentTemplating.setInputParameters(parameters);
+
+        documentTemplating.validateInputParameters();
+    }
+
+    @Test
+    public void should_validate_suported_documents() throws Exception {
+        DocumentImpl document = new DocumentImpl();
+        document.setContentMimeType("theMimeType");
+        document.setFileName("template.odt");
+        document.setContentStorageId("TheStorageID");
+
+        List<List<Object>> replacements = new ArrayList<>();
+        doReturn(document).when(processAPI).getLastDocument(processInstanceId, "documentName");
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put(DocumentTemplating.INPUT_DOCUMENT_INPUT, "documentName");
+        parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
+
+        documentTemplating.setInputParameters(parameters);
+
+        documentTemplating.validateInputParameters();
+
+        document.setFileName("template.docx");
+        documentTemplating.validateInputParameters();
+    }
+
+    @Test
+    public void should_detect_corrupted_documents() throws Exception {
+        Path fileCorrupted = new File(this.getClass().getResource("/corrupted.xml").toURI()).toPath();
+        Path fileNotCorrupted = new File(this.getClass().getResource("/notCorrupted.xml").toURI()).toPath();
+
+        assertThat(documentTemplating.isCorrupted(fileCorrupted));
+        assertThat(documentTemplating.isCorrupted(fileNotCorrupted)).isFalse();
     }
 
     public class Project {

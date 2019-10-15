@@ -10,21 +10,27 @@
 package com.bonitasoft.connectors.document.templating;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.CharBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.translate.LookupTranslator;
@@ -48,11 +54,16 @@ import fr.opensagres.xdocreport.template.TemplateEngineKind;
  */
 public class DocumentTemplating extends AbstractConnector {
 
-    public static String INPUT_DOCUMENT_INPUT = "documentInput";
-    public static String INPUT_REPLACEMENTS = "replacements";
-    public static String INPUT_RESULTING_DOC_FILENAME = "outputFileName";
+    private static final String TEMP_DOC = "connectorDocumentTemplatingTempDocument";
+    private static final String TEMP_DIR = "connectorDocumentTemplatingTempDirectory";
+    private static final String ODT_EXT = ".odt";
+    private static final String DOCX_EXT = ".docx";
 
-    public static String OUTPUT_DOCUMENT = "document";
+    public static final String INPUT_DOCUMENT_INPUT = "documentInput";
+    public static final String INPUT_REPLACEMENTS = "replacements";
+    public static final String INPUT_RESULTING_DOC_FILENAME = "outputFileName";
+    public static final String OUTPUT_DOCUMENT = "document";
+
     private LookupTranslator lookupTranslator;
 
     public DocumentTemplating() {
@@ -94,17 +105,13 @@ public class DocumentTemplating extends AbstractConnector {
     @Override
     protected void executeBusinessLogic() throws ConnectorException {
         try {
-            final ProcessAPI processAPI = getAPIAccessor().getProcessAPI();
-            final long processInstanceId = getExecutionContext().getProcessInstanceId();
-            final Document document = processAPI.getLastDocument(processInstanceId,
-                    (String) getInputParameter(INPUT_DOCUMENT_INPUT));
-            final String outputFilename = (String) getInputParameter(INPUT_RESULTING_DOC_FILENAME);
-            boolean isOdt = document.getContentFileName().endsWith(".odt");
-            final byte[] content = processAPI.getDocumentContent(document.getContentStorageId());
+            Document document = retrieveDocument();
+            String outputFilename = (String) getInputParameter(INPUT_RESULTING_DOC_FILENAME);
+            boolean isOdt = document.getContentFileName().endsWith(ODT_EXT);
+            byte[] content = getAPIAccessor().getProcessAPI().getDocumentContent(document.getContentStorageId());
+            List<List<Object>> replacements = (List<List<Object>>) getInputParameter(INPUT_REPLACEMENTS);
 
-            final byte[] finalDocument = applyReplacements(content,
-                    (List<List<Object>>) getInputParameter(INPUT_REPLACEMENTS), isOdt);
-
+            byte[] finalDocument = applyReplacements(content, replacements, isOdt);
             setOutputParameter(OUTPUT_DOCUMENT, createDocumentValue(document, outputFilename, finalDocument));
         } catch (final DocumentNotFoundException e) {
             throw new ConnectorException(e);
@@ -137,27 +144,54 @@ public class DocumentTemplating extends AbstractConnector {
     }
 
     private File sanitizeOutput(ByteArrayOutputStream byteArrayOutputStream, boolean isOdt) throws IOException {
-        String tempDir = "templateUnzipTempDir";
         try (InputStream is = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
                 ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));) {
-            Path targetDir = ZipUtil.unzip(tempDir, zis);
-            Path filePathToSanitize = isOdt
-                    ? targetDir.resolve("content.xml")
-                    : targetDir.resolve("word").resolve("document.xml");
-            byte[] contentToSanitize = Files.readAllBytes(filePathToSanitize);
-            String contentSanitized = sanitize(new String(contentToSanitize));
-            try (FileWriter fileWriter = new FileWriter(filePathToSanitize.toFile())) {
-                fileWriter.write(contentSanitized);
+            Path targetDir = ZipUtil.unzip(TEMP_DIR, zis);
+            Path documentPath = retrieveDocumentPath(isOdt, targetDir);
+            if (isCorrupted(documentPath)) {
+                sanitizeFile(documentPath);
             }
-            Path tempResFile = Files.createTempFile("tempDoc", isOdt ? ".odt" : ".docx");
+            Path tempResFile = Files.createTempFile(TEMP_DOC, isOdt ? ODT_EXT : DOCX_EXT);
             ZipUtil.zip(targetDir, tempResFile);
             return tempResFile.toFile();
         }
-
     }
 
-    private String sanitize(String stringToSanitize) {
-        return lookupTranslator.translate(stringToSanitize);
+    protected boolean isCorrupted(Path filePath) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
+            CharBuffer buffer = CharBuffer.allocate(ZipUtil.BUFFER_SIZE);
+            while (reader.read(buffer) != -1) {
+                buffer.flip();
+                String currentString = buffer.toString();
+                if (!Objects.equals(currentString, lookupTranslator.translate(currentString))) {
+                    return true;
+                }
+                buffer.clear();
+            }
+        }
+        return false;
+    }
+
+    private Path retrieveDocumentPath(boolean isOdt, Path targetDir) {
+        return isOdt
+                ? targetDir.resolve("content.xml")
+                : targetDir.resolve("word").resolve("document.xml");
+    }
+
+    private void sanitizeFile(Path filePathToSanitize) throws IOException {
+        File fileToSanitize = filePathToSanitize.toFile();
+        System.out.println(new String(FileUtils.readFileToByteArray(fileToSanitize)));
+        Path tempFile = Files.createTempFile(fileToSanitize.getName(), null);
+        Files.copy(filePathToSanitize, tempFile, StandardCopyOption.REPLACE_EXISTING);
+        try (BufferedReader reader = new BufferedReader(new FileReader(tempFile.toFile()));
+                FileWriter writer = new FileWriter(fileToSanitize)) {
+            CharBuffer buffer = CharBuffer.allocate(ZipUtil.BUFFER_SIZE);
+            while (reader.read(buffer) != -1) {
+                buffer.flip();
+                lookupTranslator.translate(buffer.toString(), writer);
+                buffer.clear();
+            }
+        }
     }
 
     private DocumentValue createDocumentValue(Document document, String outputFilename, byte[] content) {
@@ -167,6 +201,21 @@ public class DocumentTemplating extends AbstractConnector {
 
     @Override
     public void validateInputParameters() throws ConnectorValidationException {
+        try {
+            Document document = retrieveDocument();
+            if (!(document.getContentFileName().endsWith(DOCX_EXT) || document.getContentFileName().endsWith(ODT_EXT))) {
+                throw new ConnectorValidationException(
+                        "The template must be a .docx or a .odt document, other formats are not supported.");
+            }
+        } catch (DocumentNotFoundException e) {
+            throw new ConnectorValidationException(e.getMessage());
+        }
+    }
 
+    private Document retrieveDocument() throws DocumentNotFoundException {
+        ProcessAPI processAPI = getAPIAccessor().getProcessAPI();
+        long processInstanceId = getExecutionContext().getProcessInstanceId();
+        return processAPI.getLastDocument(processInstanceId,
+                (String) getInputParameter(INPUT_DOCUMENT_INPUT));
     }
 }
