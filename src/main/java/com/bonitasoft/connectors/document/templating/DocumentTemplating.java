@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.translate.LookupTranslator;
@@ -180,7 +179,6 @@ public class DocumentTemplating extends AbstractConnector {
 
     private void sanitizeFile(Path filePathToSanitize) throws IOException {
         File fileToSanitize = filePathToSanitize.toFile();
-        System.out.println(new String(FileUtils.readFileToByteArray(fileToSanitize)));
         Path tempFile = Files.createTempFile(fileToSanitize.getName(), null);
         Files.copy(filePathToSanitize, tempFile, StandardCopyOption.REPLACE_EXISTING);
         try (BufferedReader reader = new BufferedReader(new FileReader(tempFile.toFile()));
