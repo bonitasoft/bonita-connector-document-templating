@@ -320,7 +320,7 @@ public class DocumentTemplatingTest {
         Path fileCorrupted = new File(this.getClass().getResource("/corrupted.xml").toURI()).toPath();
         Path fileNotCorrupted = new File(this.getClass().getResource("/notCorrupted.xml").toURI()).toPath();
 
-        assertThat(documentTemplating.isCorrupted(fileCorrupted));
+        assertThat(documentTemplating.isCorrupted(fileCorrupted)).isTrue();
         assertThat(documentTemplating.isCorrupted(fileNotCorrupted)).isFalse();
     }
 
