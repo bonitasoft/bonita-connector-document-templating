@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -63,6 +64,7 @@ public class DocumentTemplating extends AbstractConnector {
     public static final String INPUT_RESULTING_DOC_FILENAME = "outputFileName";
     public static final String OUTPUT_DOCUMENT = "document";
 
+    private Logger logger = Logger.getLogger(DocumentTemplating.class.getName());
     private LookupTranslator lookupTranslator;
 
     public DocumentTemplating() {
@@ -148,6 +150,9 @@ public class DocumentTemplating extends AbstractConnector {
             Path targetDir = ZipUtil.unzip(TEMP_DIR, zis);
             Path documentPath = retrieveDocumentPath(isOdt, targetDir);
             if (isCorrupted(documentPath)) {
+                logger.warning(String.format(
+                        "Invalid XML characters have been detected in the document `%s`, they will be removed.",
+                        getInputParameter(INPUT_DOCUMENT_INPUT)));
                 sanitizeFile(documentPath);
             }
             Path tempResFile = Files.createTempFile(TEMP_DOC, isOdt ? ODT_EXT : DOCX_EXT);
