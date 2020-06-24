@@ -4,7 +4,7 @@
     <definitionId>document-templating</definitionId>
     <definitionVersion>1.0.1</definitionVersion>
     <description>Document templating implementation</description>
-    <implementationClassname>com.bonitasoft.connectors.document.templating.DocumentTemplating</implementationClassname>
+    <implementationClassname>org.bonitasoft.connectors.document.templating.DocumentTemplating</implementationClassname>
     <implementationId>document-templating-impl</implementationId>
     <implementationVersion>$implementation.version$</implementationVersion>
 
