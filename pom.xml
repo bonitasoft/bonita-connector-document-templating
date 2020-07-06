@@ -49,8 +49,9 @@
 
 		<!-- Connector dependencies -->
 		<opensagres.version>2.0.2</opensagres.version>
-		<velocity.version>1.4</velocity.version>
+		<velocity-tools-generic.version>1.4</velocity-tools-generic.version>
 		<commons-text.version>1.8</commons-text.version>
+		<commons-collections.version>3.2.2</commons-collections.version>
 
 		<!-- Test -->
 		<junit-jupiter-engine.version>5.6.2</junit-jupiter-engine.version>
@@ -91,7 +92,7 @@
 			<dependency>
 				<groupId>commons-collections</groupId>
 				<artifactId>commons-collections</artifactId>
-				<version>3.2.1</version>
+				<version>${commons-collections.version}</version>
 				<scope>provided</scope>
 			</dependency>
 		</dependencies>
@@ -112,7 +113,7 @@
 		<dependency>
 			<groupId>velocity-tools</groupId>
 			<artifactId>velocity-tools-generic</artifactId>
-			<version>${velocity.version}</version>
+			<version>${velocity-tools-generic.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>fr.opensagres.xdocreport</groupId>
