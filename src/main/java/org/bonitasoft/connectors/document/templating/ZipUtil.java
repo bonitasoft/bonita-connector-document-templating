@@ -5,14 +5,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2.0 of the License, or
  * (at your option) any later version.
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.bonitasoft.connectors.document.templating;
 
@@ -73,6 +71,7 @@ public class ZipUtil extends SimpleFileVisitor<Path> implements java.lang.AutoCl
     /**
      * Ensure that the zip entry separator is '/', which is not the case by default on windows ('\\'),
      * So the client doesn't have to manage this.
+     * 
      * @param path the path to normaliza
      * @return a unix style path
      */
@@ -90,28 +89,26 @@ public class ZipUtil extends SimpleFileVisitor<Path> implements java.lang.AutoCl
         Path targetDir = Files.createTempDirectory(targetDirName);
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-            int count;
             byte[] data = new byte[BUFFER_SIZE];
             File target = targetDir.toFile().toPath().resolve(entry.getName()).toFile();
+            target.getParentFile().mkdirs();
             boolean isDirectory = entry.isDirectory();
-            if (!target.exists()) {
-                target.getParentFile().mkdirs();
-                if (isDirectory ? !target.mkdir() : !target.createNewFile()) {
-                    throw new IOException(String.format("Failed to create %s %s",
-                            isDirectory ? "directory" : "file", target.getAbsolutePath()));
-                }
-            }
-            if (!isDirectory) {
-                FileOutputStream fos = new FileOutputStream(target);
-                try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE);) {
-                    while ((count = zis.read(data, 0, BUFFER_SIZE)) != -1) {
-                        dest.write(data, 0, count);
-                    }
-                    dest.flush();
-                }
+            if ((isDirectory ? target.mkdirs() : target.createNewFile()) && !isDirectory) {
+                writeFile(zis, data, target);
             }
         }
         return targetDir;
+    }
+
+    private static void writeFile(ZipInputStream zis, byte[] data, File target) throws IOException {
+        int count;
+        FileOutputStream fos = new FileOutputStream(target);
+        try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE);) {
+            while ((count = zis.read(data, 0, BUFFER_SIZE)) != -1) {
+                dest.write(data, 0, count);
+            }
+            dest.flush();
+        }
     }
 
 }

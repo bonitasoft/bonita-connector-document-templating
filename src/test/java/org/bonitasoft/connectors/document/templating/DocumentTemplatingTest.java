@@ -196,13 +196,13 @@ class DocumentTemplatingTest {
                     ConverterTypeVia.XWPF);
             report.convert(report.createContext(), options, out);
             final String actual = new String(out.toByteArray());
-            assertThat(actual.contains("mon FIELD avec SPPPPPAAAAAAACeeee")).isTrue();
-            assertThat(actual.contains("The project name")).isTrue();
-            assertThat(actual.contains("Mon champ :)")).isTrue();
+            assertThat(actual).contains("mon FIELD avec SPPPPPAAAAAAACeeee");
+            assertThat(actual).contains("The project name");
+            assertThat(actual).contains("Mon champ :)");
             assertThat(actual.contains("toto")).isTrue();
-            assertThat(actual.contains("my task")).isTrue();
-            assertThat(actual.contains("[my task, another task, last task]")).isTrue();
-            assertThat(actual.contains("[another task, last task, my task]")).isTrue();
+            assertThat(actual).contains("my task");
+            assertThat(actual).contains("[my task, another task, last task]");
+            assertThat(actual).contains("[another task, last task, my task]");
         }
     }
 

@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipInputStream;
 
@@ -156,7 +157,7 @@ public class DocumentTemplating extends AbstractConnector {
                 ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));) {
             Path targetDir = ZipUtil.unzip(TEMP_DIR, zis);
             Path documentPath = retrieveDocumentPath(isOdt, targetDir);
-            if (isCorrupted(documentPath)) {
+            if (isCorrupted(documentPath) && logger.isLoggable(Level.WARNING)) {
                 logger.warning(String.format(
                         "Invalid XML characters have been detected in the document `%s`, they will be removed.",
                         getInputParameter(INPUT_DOCUMENT_INPUT)));

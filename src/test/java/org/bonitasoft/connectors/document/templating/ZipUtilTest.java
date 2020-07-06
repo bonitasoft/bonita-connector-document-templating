@@ -17,18 +17,53 @@ package org.bonitasoft.connectors.document.templating;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.zip.ZipInputStream;
 
+import org.bonitasoft.engine.io.IOUtil;
 import org.junit.jupiter.api.Test;
 
 class ZipUtilTest {
+
+    @Test
+    void should_unzip_document() throws IOException {
+        Path target = null;
+        try (ZipInputStream zis = new ZipInputStream(ZipUtilTest.class.getResourceAsStream("/template.docx"))) {
+            target = ZipUtil.unzip("testZipOutput", zis);
+
+            assertThat(target).exists();
+            assertThat(target.resolve("[Content_Types].xml")).exists();
+            assertThat(target.resolve("word")).isNotEmptyDirectory();
+        } finally {
+            if (target != null) {
+                IOUtil.deleteDir(target.toFile());
+            }
+        }
+    }
     
+    @Test
+    void should_unzip_document_with_empty_folder() throws IOException {
+        Path target = null;
+        try (ZipInputStream zis = new ZipInputStream(ZipUtilTest.class.getResourceAsStream("/unzipTest.docx"))) {
+            target = ZipUtil.unzip("testZipOutput", zis);
+
+            assertThat(target).exists();
+            assertThat(target.resolve("emptyFolder")).isEmptyDirectory();
+        } finally {
+            if (target != null) {
+                IOUtil.deleteDir(target.toFile());
+            }
+        }
+    }
+
     @Test
     void should_normalize_path() {
         File file = new File("");
-       
+
         String normalizedPath = ZipUtil.normalizePath(Paths.get(file.getAbsolutePath()));
-        
+
         assertThat(normalizedPath).doesNotContain("\\");
     }
 
