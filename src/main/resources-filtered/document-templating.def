@@ -2,8 +2,8 @@
 <definition:ConnectorDefinition xmlns:definition="http://www.bonitasoft.org/ns/connector/definition/6.1"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <id>document-templating</id>
-    <version>1.0.1</version>
+    <id>${document-templating.def.id}</id>
+    <version>${document-templating.def.version}</version>
     <icon>templating.png</icon>
 
 	<category id="office" icon="office.png"/>
