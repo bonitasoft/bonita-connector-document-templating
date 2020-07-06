@@ -73,6 +73,8 @@ public class ZipUtil extends SimpleFileVisitor<Path> implements java.lang.AutoCl
     /**
      * Ensure that the zip entry separator is '/', which is not the case by default on windows ('\\'),
      * So the client doesn't have to manage this.
+     * @param path the path to normaliza
+     * @return a unix style path
      */
     public static String normalizePath(Path path) {
         return path.toString().replaceAll("\\\\", "/");

@@ -5,20 +5,19 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2.0 of the License, or
  * (at your option) any later version.
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.bonitasoft.connectors.document.templating;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
@@ -36,21 +35,22 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.bonitasoft.engine.api.APIAccessor;
+import org.bonitasoft.engine.api.ProcessAPI;
 import org.bonitasoft.engine.bpm.document.DocumentNotFoundException;
 import org.bonitasoft.engine.bpm.document.DocumentValue;
 import org.bonitasoft.engine.bpm.document.impl.DocumentImpl;
 import org.bonitasoft.engine.connector.ConnectorException;
 import org.bonitasoft.engine.connector.ConnectorValidationException;
 import org.bonitasoft.engine.connector.EngineExecutionContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import org.bonitasoft.engine.api.ProcessAPI;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import fr.opensagres.xdocreport.converter.ConverterTypeTo;
 import fr.opensagres.xdocreport.converter.ConverterTypeVia;
@@ -60,8 +60,9 @@ import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentTemplatingTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class DocumentTemplatingTest {
 
     private final long processInstanceId = 4861356546L;
     @Mock
@@ -74,14 +75,14 @@ public class DocumentTemplatingTest {
     @InjectMocks
     private DocumentTemplating documentTemplating;
 
-    @Before
+    @BeforeEach
     public void before() {
         doReturn(processAPI).when(apiAccessor).getProcessAPI();
         doReturn(processInstanceId).when(engineExecutionContext).getProcessInstanceId();
     }
 
     @Test
-    public void should_execute_return_result_of_convert_method() throws ConnectorException, DocumentNotFoundException {
+    void should_execute_return_result_of_convert_method() throws ConnectorException, DocumentNotFoundException {
         //given
         DocumentImpl document = new DocumentImpl();
         document.setContentMimeType("theMimeType");
@@ -110,7 +111,7 @@ public class DocumentTemplatingTest {
     }
 
     @Test
-    public void should_execute_return_result_of_convert_method_with_outputFileName()
+    void should_execute_return_result_of_convert_method_with_outputFileName()
             throws ConnectorException, DocumentNotFoundException {
         //given
         DocumentImpl document = new DocumentImpl();
@@ -140,8 +141,8 @@ public class DocumentTemplatingTest {
                 .isEqualToComparingFieldByField(new DocumentValue(contentAfter, "theMimeType", "outDocument.docx"));
     }
 
-    @Test(expected = ConnectorException.class)
-    public void should_execute_throw_exception_when_document_not_found()
+    @Test
+    void should_execute_throw_exception_when_document_not_found()
             throws ConnectorException, DocumentNotFoundException {
         //given
         final Map<String, String> replacements = Collections.singletonMap("theKey", "theValue");
@@ -151,12 +152,12 @@ public class DocumentTemplatingTest {
         parameters.put(DocumentTemplating.INPUT_REPLACEMENTS, replacements);
         documentTemplating.setInputParameters(parameters);
 
-        //when
-        documentTemplating.execute();
+        //then
+        assertThrows(ConnectorException.class, () -> documentTemplating.execute());
     }
 
     @Test
-    public void process_docx_document()
+    void process_docx_document()
             throws ConnectorException, DocumentNotFoundException, IOException, XDocReportException {
         //given
         DocumentImpl document = new DocumentImpl();
@@ -187,7 +188,8 @@ public class DocumentTemplatingTest {
         //then
         assertThat(execute).containsOnlyKeys(DocumentTemplating.OUTPUT_DOCUMENT);
         final IXDocReport report = XDocReportRegistry.getRegistry().loadReport(
-                new ByteArrayInputStream(((DocumentValue) execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()),
+                new ByteArrayInputStream(
+                        ((DocumentValue) execute.get(DocumentTemplating.OUTPUT_DOCUMENT)).getContent()),
                 TemplateEngineKind.Velocity);
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Options options = Options.getTo(ConverterTypeTo.XHTML).via(
@@ -205,7 +207,7 @@ public class DocumentTemplatingTest {
     }
 
     @Test
-    public void should_sanitize_input_with_invalid_char_for_docx() throws Exception {
+    void should_sanitize_input_with_invalid_char_for_docx() throws Exception {
         //given
         DocumentImpl document = new DocumentImpl();
         document.setContentMimeType("theMimeType");
@@ -242,7 +244,7 @@ public class DocumentTemplatingTest {
     }
 
     @Test
-    public void should_sanitize_input_with_invalid_char_for_odt() throws Exception {
+    void should_sanitize_input_with_invalid_char_for_odt() throws Exception {
         //given
         DocumentImpl document = new DocumentImpl();
         document.setContentMimeType("theMimeType");
@@ -278,8 +280,8 @@ public class DocumentTemplatingTest {
         }
     }
 
-    @Test(expected = ConnectorValidationException.class)
-    public void should_not_validate_unsuported_documents() throws Exception {
+    @Test
+    void should_not_validate_unsuported_documents() throws Exception {
         DocumentImpl document = new DocumentImpl();
         document.setContentMimeType("theMimeType");
         document.setFileName("template.txt");
@@ -294,11 +296,12 @@ public class DocumentTemplatingTest {
 
         documentTemplating.setInputParameters(parameters);
 
-        documentTemplating.validateInputParameters();
+        //then
+        assertThrows(ConnectorValidationException.class, () -> documentTemplating.validateInputParameters());
     }
 
     @Test
-    public void should_validate_suported_documents() throws Exception {
+    void should_validate_suported_documents() throws Exception {
         DocumentImpl document = new DocumentImpl();
         document.setContentMimeType("theMimeType");
         document.setFileName("template.odt");
@@ -320,7 +323,7 @@ public class DocumentTemplatingTest {
     }
 
     @Test
-    public void should_detect_corrupted_documents() throws Exception {
+    void should_detect_corrupted_documents() throws Exception {
         Path fileCorrupted = new File(this.getClass().getResource("/corrupted.xml").toURI()).toPath();
         Path fileNotCorrupted = new File(this.getClass().getResource("/notCorrupted.xml").toURI()).toPath();
 
