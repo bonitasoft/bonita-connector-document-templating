@@ -7,6 +7,10 @@
 
 Insert document properties inside .docx template
 
+## Bonita compatibility
+
+[v2.0.0](https://github.com/bonitasoft/bonita-connector-document-templating/releases/2.0.0) is compatible with Bonita version from 7.7.x to 7.10.x
+
 ## Build
 
 __Clone__ or __fork__ this repository, then at the root of the project run:
