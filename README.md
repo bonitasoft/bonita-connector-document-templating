@@ -4,6 +4,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/bonitasoft/bonita-connector-document-templating?color=blue&label=Release)](https://github.com/bonitasoft/bonita-connector-document-templating/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/org.bonitasoft.connectors/bonita-connector-document-templating.svg?label=Maven%20Central&color=orange)](https://search.maven.org/search?q=g:%22org.bonitasoft.connectors%22%20AND%20a:%22bonita-connector-document-templating%22)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-yellow.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbonitasoft%2Fbonita-connector-document-templating.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbonitasoft%2Fbonita-connector-document-templating?ref=badge_shield)
 
 Insert document properties inside .docx template
 
@@ -45,3 +46,6 @@ We would love you to contribute, pull requests are welcome! Please see the [CONT
 ## License
 
 The sources and documentation in this project are released under the [GPLv2 License](LICENSE)
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbonitasoft%2Fbonita-connector-document-templating.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbonitasoft%2Fbonita-connector-document-templating?ref=badge_large)
