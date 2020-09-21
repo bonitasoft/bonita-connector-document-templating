@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.nio.CharBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -171,8 +172,10 @@ public class DocumentTemplating extends AbstractConnector {
 
     protected boolean isCorrupted(Path filePath) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
-            CharBuffer buffer = CharBuffer.allocate(ZipUtil.BUFFER_SIZE);
-            while (reader.read(buffer) != -1) {
+         // Explicitly use Buffer instead of CharBuffer for java 8 runtime compatibility
+            // See https://stackoverflow.com/questions/61267495/exception-in-thread-main-java-lang-nosuchmethoderror-java-nio-bytebuffer-flip
+            Buffer buffer = CharBuffer.allocate(ZipUtil.BUFFER_SIZE);
+            while (reader.read((CharBuffer) buffer) != -1) {
                 buffer.flip();
                 String currentString = buffer.toString();
                 if (!Objects.equals(currentString, lookupTranslator.translate(currentString))) {
@@ -196,8 +199,10 @@ public class DocumentTemplating extends AbstractConnector {
         Files.copy(filePathToSanitize, tempFile, StandardCopyOption.REPLACE_EXISTING);
         try (BufferedReader reader = new BufferedReader(new FileReader(tempFile.toFile()));
                 FileWriter writer = new FileWriter(fileToSanitize)) {
-            CharBuffer buffer = CharBuffer.allocate(ZipUtil.BUFFER_SIZE);
-            while (reader.read(buffer) != -1) {
+            // Explicitly use Buffer instead of CharBuffer for java 8 runtime compatibility
+            // See https://stackoverflow.com/questions/61267495/exception-in-thread-main-java-lang-nosuchmethoderror-java-nio-bytebuffer-flip
+            Buffer buffer = CharBuffer.allocate(ZipUtil.BUFFER_SIZE);
+            while (reader.read((CharBuffer) buffer) != -1) {
                 buffer.flip();
                 lookupTranslator.translate(buffer.toString(), writer);
                 buffer.clear();
