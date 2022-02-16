@@ -52,16 +52,15 @@
         <velocity-tools-generic.version>1.4</velocity-tools-generic.version>
         <commons-text.version>1.9</commons-text.version>
         <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-collections4.version>4.4</commons-collections4.version>
 
         <!-- Test -->
         <junit-jupiter-engine.version>5.8.1</junit-jupiter-engine.version>
         <wiremock.version>2.26.3</wiremock.version>
         <assertj-core.version>3.21.0</assertj-core.version>
         <mockito-core.version>3.3.3</mockito-core.version>
-        <logback-classic.version>1.2.3</logback-classic.version>
-        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-        <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
+        <logback-classic.version>1.2.10</logback-classic.version>
+        <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
+        <sonar-maven-plugin.version>3.9.1.2185</sonar-maven-plugin.version>
 
         <!-- Maven plugins -->
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -138,10 +137,12 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
+            <version>${commons-text.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
+            <version>${commons-collections.version}</version>
         </dependency>
         
         <dependency>
