@@ -16,10 +16,12 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
           java-version: 11
-      
+          distribution: 'temurin'
+          cache: maven
+
       - name: Extract version
         shell: bash
         run: echo "##[set-output name=version;]$(echo ${GITHUB_REF#refs/heads/} | sed 's/release-//g')"
@@ -59,7 +61,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: target/bonita-connector-document-templating-${{ steps.extract_version.outputs.version }}-all.zip
+          asset_path: ./target/bonita-connector-document-templating-${{ steps.extract_version.outputs.version }}-all.zip
           asset_name: bonita-connector-document-templating-${{ steps.extract_version.outputs.version }}-all.zip
           asset_content_type: application/zip
           
