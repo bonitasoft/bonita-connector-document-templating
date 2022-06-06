@@ -48,7 +48,7 @@
         <bonita.engine.version>7.13.0</bonita.engine.version>
 
         <!-- Connector dependencies -->
-        <opensagres.version>2.0.2</opensagres.version>
+        <opensagres.version>2.0.3</opensagres.version>
         <velocity-tools-generic.version>1.4</velocity-tools-generic.version>
         <commons-text.version>1.9</commons-text.version>
         <commons-collections.version>3.2.2</commons-collections.version>
