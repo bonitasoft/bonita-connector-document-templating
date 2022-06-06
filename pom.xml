@@ -45,7 +45,7 @@
         <document-templating.main-class>org.bonitasoft.connectors.document.templating.DocumentTemplating</document-templating.main-class>
 
         <!-- Bonita -->
-        <bonita.engine.version>7.13.0</bonita.engine.version>
+        <bonita.engine.version>7.14.0</bonita.engine.version>
 
         <!-- Connector dependencies -->
         <opensagres.version>2.0.2</opensagres.version>
@@ -58,7 +58,7 @@
         <wiremock.version>2.26.3</wiremock.version>
         <assertj-core.version>3.21.0</assertj-core.version>
         <mockito-core.version>3.3.3</mockito-core.version>
-        <logback-classic.version>1.2.10</logback-classic.version>
+        <logback-classic.version>1.2.11</logback-classic.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <sonar-maven-plugin.version>3.9.1.2185</sonar-maven-plugin.version>
 
@@ -345,7 +345,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
