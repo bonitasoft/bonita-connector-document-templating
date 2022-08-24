@@ -48,7 +48,7 @@
         <bonita.engine.version>7.14.0</bonita.engine.version>
 
         <!-- Connector dependencies -->
-        <opensagres.version>2.0.3</opensagres.version>
+        <opensagres.version>2.0.4</opensagres.version>
         <velocity-tools-generic.version>1.4</velocity-tools-generic.version>
         <commons-text.version>1.9</commons-text.version>
 
@@ -86,6 +86,11 @@
                 <version>${bonita.engine.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
