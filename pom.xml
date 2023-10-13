@@ -51,8 +51,6 @@
         <opensagres.version>2.0.4</opensagres.version>
         <velocity-tools-generic.version>1.4</velocity-tools-generic.version>
         <commons-text.version>1.10.0</commons-text.version>
-        <commons-io.version>2.8.0</commons-io.version>
-        <commons-lang.version>3.11</commons-lang.version>
 
         <!-- Test -->
         <junit-jupiter-engine.version>5.9.2</junit-jupiter-engine.version>
@@ -142,13 +140,11 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang.version}</version>
             <scope>provided</scope>
         </dependency>
         
