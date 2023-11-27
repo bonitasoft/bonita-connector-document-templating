@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Release connector
-        uses: bonitasoft/action-release-connector@1.0.0
+        uses: bonitasoft/action-release-connector@2.0.0
         id: release-connector
         with:
           release-version: ${{ github.event.inputs.version }}
