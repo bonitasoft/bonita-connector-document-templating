@@ -50,7 +50,7 @@
         <!-- Connector dependencies -->
         <opensagres.version>2.0.4</opensagres.version>
         <velocity-tools-generic.version>1.4</velocity-tools-generic.version>
-        <commons-text.version>1.10.0</commons-text.version>
+        <commons-text.version>1.11.0</commons-text.version>
 
         <!-- Test -->
         <junit-jupiter-engine.version>5.10.1</junit-jupiter-engine.version>
