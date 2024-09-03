@@ -6,7 +6,7 @@
 
     <groupId>org.bonitasoft.connectors</groupId>
     <artifactId>bonita-connector-document-templating</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
 
     <name>Office Document Templating Connector</name>
     <description>Office document templating connector for Bonita</description>
@@ -32,7 +32,7 @@
 
     <properties>
         <!-- Maven -->
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.build.timestamp.format>yyyy.MM.dd-hh.mm</maven.build.timestamp.format>
@@ -45,15 +45,16 @@
         <document-templating.main-class>org.bonitasoft.connectors.document.templating.DocumentTemplating</document-templating.main-class>
 
         <!-- Bonita -->
-        <bonita.engine.version>7.14.0</bonita.engine.version>
+        <bonita.engine.version>10.0.0</bonita.engine.version>
 
         <!-- Connector dependencies -->
-        <opensagres.version>2.0.4</opensagres.version>
+        <opensagres.version>2.1.0</opensagres.version>
         <velocity-tools-generic.version>1.4</velocity-tools-generic.version>
-        <commons-text.version>1.11.0</commons-text.version>
+        <commons-text.version>1.12.0</commons-text.version>
+        <xercesImpl.version>2.12.2</xercesImpl.version>
 
         <!-- Test -->
-        <junit-jupiter-engine.version>5.10.1</junit-jupiter-engine.version>
+        <junit-jupiter.version>5.10.1</junit-jupiter.version>
         <wiremock.version>2.26.3</wiremock.version>
         <assertj-core.version>3.24.2</assertj-core.version>
         <mockito-core.version>5.11.0</mockito-core.version>
@@ -62,13 +63,13 @@
         <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
 
         <!-- Maven plugins -->
-        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
         <groovy-maven-plugin.version>2.1.1</groovy-maven-plugin.version>
-        <groovy.version>3.0.19</groovy.version>
+        <groovy.version>3.0.21</groovy.version>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+        <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
 
@@ -81,6 +82,13 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.bonitasoft.runtime</groupId>
                 <artifactId>bonita-runtime-bom</artifactId>
                 <version>${bonita.engine.version}</version>
@@ -91,6 +99,21 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>xerces</groupId>
+                <artifactId>xercesImpl</artifactId>
+                <version>${xercesImpl.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -159,7 +182,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit-jupiter-engine.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
