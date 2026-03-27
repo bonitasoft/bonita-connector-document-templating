@@ -54,7 +54,7 @@
         <xercesImpl.version>2.12.2</xercesImpl.version>
 
         <!-- Test -->
-        <junit-jupiter.version>5.10.1</junit-jupiter.version>
+        <junit-jupiter.version>5.11.4</junit-jupiter.version>
         <wiremock.version>2.26.3</wiremock.version>
         <assertj-core.version>3.24.2</assertj-core.version>
         <mockito-core.version>5.11.0</mockito-core.version>
