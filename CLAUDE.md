@@ -3,7 +3,7 @@
 ## Project Overview
 
 **Artifact:** `org.bonitasoft.connectors:bonita-connector-document-templating`
-**Current version:** 3.0.0-SNAPSHOT
+**Current version:** 4.0.0-SNAPSHOT
 **License:** GPL v2
 **Description:** A Bonita connector that merges data into `.docx` (Word) and `.odt` (LibreOffice) document templates using the [Apache Velocity](http://velocity.apache.org/) templating engine via [XDocReport](https://github.com/opensagres/xdocreport).
 
@@ -11,7 +11,7 @@ The connector accepts a Bonita process document as a template and a list of key/
 
 **Connector definition ID:** `document-templating` (version `1.0.1`)
 **Main class:** `org.bonitasoft.connectors.document.templating.DocumentTemplating`
-**Bonita engine compatibility:** 10.0.0+, Java 17
+**Bonita engine compatibility:** 12.0+ (Jakarta EE), Java 17 (3.x: Bonita 10.0 to 11.x)
 
 ---
 
@@ -153,7 +153,7 @@ ci: add Claude Code review workflow
 Releases are handled via the `release.yml` GitHub Actions workflow (reusable workflow from `bonitasoft/github-workflows`).
 
 1. On the release branch, update `pom.xml` version — remove `-SNAPSHOT` suffix.
-2. Run the [**Create release** action](https://github.com/bonitasoft/bonita-connector-document-templating/actions/workflows/release.yml) with the target version (e.g. `3.0.0`).
+2. Run the [**Create release** action](https://github.com/bonitasoft/bonita-connector-document-templating/actions/workflows/release.yml) with the target version (e.g. `4.0.0`).
 3. The workflow: creates a Git tag, publishes to Maven Central (via `central-publishing-maven-plugin`), and creates a GitHub Release.
 4. Merge back to `master` and bump to the next `-SNAPSHOT` version.
 5. Update the [Bonita marketplace repository](https://github.com/bonitasoft/bonita-marketplace) with the new version.
