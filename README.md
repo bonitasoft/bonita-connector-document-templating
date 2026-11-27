@@ -9,7 +9,13 @@ Insert document properties inside .docx template
 
 ## Bonita compatibility
 
-[v2.3.0](https://github.com/bonitasoft/bonita-connector-document-templating/releases/2.3.0) is compatible with Bonita version 7.11.x and above
+| Connector      | Bonita         | Java         |
+|----------------|----------------|--------------|
+| 4.x (`master`) | 12.0 and later | 17 and later |
+| 3.x            | 10.0 to 11.x   | 17           |
+| 2.x            | 7.11 to 9.x    | 11           |
+
+The connector definition (`document-templating` 1.0.1) and its inputs/outputs are unchanged across these versions.
 
 ## Build
 
